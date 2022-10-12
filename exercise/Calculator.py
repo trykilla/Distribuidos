@@ -4,8 +4,6 @@
 import sys
 import Ice
 
-
-
 Ice.loadSlice("Calculator.ice")
 #pylint: disable=C0413
 import SSDD
@@ -29,7 +27,6 @@ class CalculadoraServant(SSDD.Calculator):
             raise SSDD.ZeroDivisionError()
         
 
-
 class Server(Ice.Application):
     def run(self, argv):
         comm = self.communicator()
@@ -37,14 +34,13 @@ class Server(Ice.Application):
         
         adapter = comm.createObjectAdapterWithEndpoints(
             "CalcAdapter", "tcp")
-        proxy = adapter.add(servant, comm.stringToIdentity("calculator"))
-        
-        
+        proxyGenerico = adapter.add(servant, comm.stringToIdentity("calculator"))
         proxyTester = comm.stringToProxy(argv[1])
-        tester = SSDD.CalculatorTesterPrx.checkedCast(proxyTester)
-        calcProxy = SSDD.CalculatorPrx.checkedCast(proxy)
         
-        tester.test(calcProxy)
+        tester = SSDD.CalculatorTesterPrx.checkedCast(proxyTester)
+        calc = SSDD.CalculatorPrx.checkedCast(proxyGenerico)
+        
+        tester.test(calc)
         
         adapter.activate()
         self.shutdownOnInterrupt()
@@ -55,5 +51,4 @@ class Server(Ice.Application):
 
 if __name__ == '__main__':
     server = Server()
-    
     sys.exit(server.main(sys.argv))
